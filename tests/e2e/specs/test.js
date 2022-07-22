@@ -6,3 +6,13 @@ describe('My First Test', () => {
     cy.contains('h1', 'Welcome to Your Vue.js + TypeScript App');
   });
 });
+
+describe('Form Test', () => {
+  it('can fill the form', () => {
+    cy.visit('/');
+    cy.get('form');
+    cy.get('input[name="name"]').type('hans7').should('have.value', 'hanshans7');
+    cy.get('input[name="email"]').type('hans@dev.dev').should('have.value', 'hans@dev.dev');
+    cy.get('form').submit();
+  });
+});
