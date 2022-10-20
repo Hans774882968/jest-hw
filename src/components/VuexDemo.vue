@@ -9,6 +9,9 @@
     <button @click="changeMessage">
       按钮2
     </button>
+    <button @click="dispatchMessageAction">
+      按钮3
+    </button>
   </div>
 </template>
 
@@ -31,8 +34,15 @@ export default class Button extends Vue {
 
   @moduleB.Mutation('setMessage') public setMessage!: (msg: string) => void;
 
+  @moduleB.Action('dispatchMsgAction') public dispatchMsgAction!: () => void;
+
+  // 像其他方法一样直接调用Mutation和Action即可
   changeMessage() {
     this.setMessage(`${this.message}234`);
+  }
+
+  dispatchMessageAction() {
+    this.dispatchMsgAction();
   }
 }
 </script>

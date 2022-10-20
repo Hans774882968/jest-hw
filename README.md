@@ -35,7 +35,22 @@ yarn lint
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
 
-### Vuex + TS的使用
+## Vuex + TS的使用
+安装：
+
+```json
+  "dependencies": {
+    "vuex": "3.4.0",
+    "vuex-module-decorators": "^0.17.0",
+    "vuex-class": "^0.3.2"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-vuex": "~4.4.0",
+  }
+```
+
+没有安装`postcss`却出现`flex-gap-polyfill`：这是因为上级文件夹有`postcss.config.js`。我们往往认为上级文件夹没有影响，其实是可能有影响的……
+
 简单来说Vuex主要就这些东西：
 
 - State：变量
@@ -99,7 +114,7 @@ export default store;
 
 然后是两个module的实现：
 
-- Action只能通过`this.context.commit`触发Mutation来修改变量。
+- Action只能通过`this.context.commit`触发Mutation来修改变量，不能直接调用Mutation的方法或直接调用State。
 - Action后带个commit属性来触发一次后置的Mutation，这个会在CRUD的时候方便一点。
 - Mutation可以直接改变量。
 
@@ -153,7 +168,7 @@ class ModuleA extends VuexModule {
 export default ModuleA;
 
 import {
-  VuexModule, Module, Mutation,
+  VuexModule, Module, Mutation, Action,
 } from 'vuex-module-decorators';
 
 @Module({ namespaced: true })
@@ -168,6 +183,11 @@ class ModuleB extends VuexModule {
   setMessage(message: string): void {
     this.msg = message;
   }
+
+  @Action
+  dispatchMsgAction() {
+    setTimeout(() => this.context.commit('setMessage', `${this.message}xyz`), 500);
+  }
 }
 export default ModuleB;
 ```
@@ -176,6 +196,7 @@ export default ModuleB;
 
 - 注意一下`namespace`的写法。写法不唯一但这种写法还是不错的。
 - 用装饰器声明成员`setMessage`以后，在方法里就可以直接调用`this.setMessage`。
+- 像其他方法一样直接调用Mutation和Action即可。
 
 ```vue
 <template>
@@ -188,6 +209,9 @@ export default ModuleB;
     </button>
     <button @click="changeMessage">
       按钮2
+    </button>
+    <button @click="dispatchMessageAction">
+      按钮3
     </button>
   </div>
 </template>
@@ -211,8 +235,15 @@ export default class Button extends Vue {
 
   @moduleB.Mutation('setMessage') public setMessage!: (msg: string) => void;
 
+  @moduleB.Action('dispatchMsgAction') public dispatchMsgAction!: () => void;
+
+  // 像其他方法一样直接调用Mutation和Action即可
   changeMessage() {
     this.setMessage(`${this.message}234`);
+  }
+
+  dispatchMessageAction() {
+    this.dispatchMsgAction();
   }
 }
 </script>
@@ -220,7 +251,7 @@ export default class Button extends Vue {
 
 效果：支持点击按钮来修改属性。
 
-### 解决冲突
+## 解决冲突
 今天叕忘记了GitHub首次提交不能先新建readme，导致要走一遍冲突解决的流程，在此记录。
 
 ```
@@ -243,6 +274,6 @@ git pull jest-hw main --allow-unrelated-histories --no-rebase
 
 注：参考链接1是冲突解决方法。
 
-### 参考链接
+## 参考链接
 1. https://juejin.cn/post/7028487889864851469
 2. https://juejin.cn/post/6928468842377117709
